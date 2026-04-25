@@ -1,0 +1,71 @@
+person_list = [
+    {"Id": 0, "Name": "Bill", "Surname": "Gates", "Age": 65},
+    {"Id": 1, "Name": "Steve", "Surname": "Jobs", "Age": 72},
+    {"Id": 2, "Name": "Steve", "Surname": "Ballmer", "Age": 69}
+]
+
+def find_person(query):
+    parts = query.split()
+    for p in person_list:
+        if p["Name"] == query or p["Surname"] == query:
+            return p
+        if p["Name"] == parts[0] and p["Surname"] == parts[-1]:
+            return p
+        if p["Surname"] == parts[0] and p["Name"] == parts[-1]:
+            return p
+    return None
+
+def find_by_id(id):
+    for p in person_list:
+        if p["Id"] == id:
+            return p
+    return None
+
+exit = False
+while exit != True:
+    choice = int(input("\n1 - Показать всех\n2 - Добавить\n3 - Удалить\n4 - Редактировать\n0 - Выход\n"))
+
+    if choice == 0:
+        print("Пока!")
+        exit = True
+
+    elif choice == 1:
+        for p in person_list:
+            print(f"{p['Id']} - {p['Name']} {p['Surname']} {p['Age']}")
+
+    elif choice == 2:
+        name = input("Имя: ")
+        surname = input("Фамилия: ")
+        age = int(input("Возраст: "))
+        new_id = person_list[-1]["Id"] + 1
+        person_list.append({"Id": new_id, "Name": name, "Surname": surname, "Age": age})
+        print("Добавлено!")
+
+    elif choice == 3:
+        query = input("Имя / Фамилия / Имя Фамилия / Id: ")
+        if query.isdigit():
+            p = find_by_id(int(query))
+        else:
+            p = find_person(query)
+        if p:
+            person_list.remove(p)
+            print("Удалено!")
+        else:
+            print("Не найдено")
+
+    elif choice == 4:
+        query = input("Имя / Фамилия / Имя Фамилия / Id: ")
+        if query.isdigit():
+            p = find_by_id(int(query))
+        else:
+            p = find_person(query)
+        if p:
+            p["Name"] = input("Новое имя: ")
+            p["Surname"] = input("Новая фамилия: ")
+            p["Age"] = int(input("Новый возраст: "))
+            print("Обновлено!")
+        else:
+            print("Не найдено")
+
+    else:
+        print("Неверный выбор")

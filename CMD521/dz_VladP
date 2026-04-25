@@ -1,0 +1,166 @@
+people_list = [
+    {"id": 1, "name": "Bart", "surname": "Simpson", "age": 32, "role": "C++ Developer", "salary": 100500},
+]
+
+next_id = 2
+
+while True:
+    print("\n1 - Показати всіх користувачів")
+    print("2 - Додати нового")
+    print("3 - Редагувати користувача")
+    print("4 - Видалити користувача")
+    print("5 - Показати користувача за ID")
+    print("6 - Знайти найстаршого")
+    print("7 - Знайти користувача з найбільшою ЗП")
+    print("0 - Вихід")
+
+    choice = input("Вибір: ")
+
+    if choice == "0":
+        break
+
+    elif choice == "1":
+        if len(people_list) == 0:
+            print("Список порожній")
+        else:
+            for p in people_list:
+                print(f"\nID: {p['id']} | {p['name']} {p['surname']} | Вік: {p['age']} | {p['role']} | ЗП: {p['salary']}")
+
+    elif choice == "2":
+        name = input("Ім'я: ")
+        surname = input("Прізвище: ")
+        age = input("Вік: ")
+        role = input("Роль: ")
+        salary = input("ЗП: ")
+
+        if not age.isdigit() or not salary.isdigit():
+            print("Вік і ЗП мають бути числами")
+            continue
+
+        new_user = {
+            "id": next_id,
+            "name": name,
+            "surname": surname,
+            "age": int(age),
+            "role": role,
+            "salary": int(salary)
+        }
+        people_list.append(new_user)
+        next_id += 1
+        print(f"Користувача додано з ID {new_user['id']}")
+
+    elif choice == "3":
+        user_id = input("Введи ID користувача: ")
+        if not user_id.isdigit():
+            print("ID має бути числом")
+            continue
+
+        found = None
+        for p in people_list:
+            if p["id"] == int(user_id):
+                found = p
+                break
+
+        if found is None:
+            print("Користувача не знайдено")
+            continue
+
+        print(f"Редагуєш: {found['name']} {found['surname']}")
+        print("Залиш порожнім щоб не змінювати")
+
+        new_name = input(f"Ім'я ({found['name']}): ")
+        new_surname = input(f"Прізвище ({found['surname']}): ")
+        new_age = input(f"Вік ({found['age']}): ")
+        new_role = input(f"Роль ({found['role']}): ")
+        new_salary = input(f"ЗП ({found['salary']}): ")
+
+        if new_name != "":
+            found["name"] = new_name
+        if new_surname != "":
+            found["surname"] = new_surname
+        if new_age != "":
+            if not new_age.isdigit():
+                print("Вік має бути числом")
+                continue
+            found["age"] = int(new_age)
+        if new_role != "":
+            found["role"] = new_role
+        if new_salary != "":
+            if not new_salary.isdigit():
+                print("ЗП має бути числом")
+                continue
+            found["salary"] = int(new_salary)
+
+        print("Збережено")
+
+    elif choice == "4":
+        user_id = input("Введи ID користувача: ")
+        if not user_id.isdigit():
+            print("ID має бути числом")
+            continue
+
+        found = None
+        for p in people_list:
+            if p["id"] == int(user_id):
+                found = p
+                break
+
+        if found is None:
+            print("Користувача не знайдено")
+            continue
+
+        print(f"Видаляєш: {found['name']} {found['surname']}")
+        confirm = input("Підтвердити? 1 - Так / 0 - Ні: ")
+        if confirm == "1":
+            people_list.remove(found)
+            print("Видалено")
+        else:
+            print("Скасовано")
+
+    elif choice == "5":
+        user_id = input("Введи ID: ")
+        if not user_id.isdigit():
+            print("ID має бути числом")
+            continue
+
+        found = None
+        for p in people_list:
+            if p["id"] == int(user_id):
+                found = p
+                break
+
+        if found is None:
+            print("Користувача не знайдено")
+        else:
+            print(f"\nID: {found['id']}")
+            print(f"Ім'я: {found['name']} {found['surname']}")
+            print(f"Вік: {found['age']}")
+            print(f"Роль: {found['role']}")
+            print(f"ЗП: {found['salary']}")
+
+    elif choice == "6":
+        if len(people_list) == 0:
+            print("Список порожній")
+            continue
+
+        oldest = people_list[0]
+        for p in people_list:
+            if p["age"] > oldest["age"]:
+                oldest = p
+
+        print(f"\nНайстарший: {oldest['name']} {oldest['surname']} | Вік: {oldest['age']}")
+
+    elif choice == "7":
+        if len(people_list) == 0:
+            print("Список порожній")
+            continue
+
+        richest = people_list[0]
+        for p in people_list:
+            if p["salary"] > richest["salary"]:
+                richest = p
+
+        print(f"\nНайбільша ЗП: {richest['name']} {richest['surname']} | ЗП: {richest['salary']}")
+
+    else:
+        print("Невірний вибір")

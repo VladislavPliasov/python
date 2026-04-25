@@ -1,0 +1,133 @@
+import requests
+
+API = "https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=5"
+response = requests.get(API)
+data = response.json()
+
+kassa = {
+    "UAH": 100000,
+    "USD": 5000,
+    "EUR": 5000
+}
+
+user = {
+    "UAH": 50000,
+    "USD": 100,
+    "EUR": 100
+}
+
+start_uah = kassa["UAH"]
+nacentka_buy = 1.02
+nacentka_sell = 0.98
+
+running = True
+
+while running:
+    print(f"\n1 - Обменять валюту")
+    print(f"2 - Баланс обменника")
+    print(f"3 - Мой баланс")
+    print(f"4 - Курс валют")
+    print(f"0 - Выход")
+
+    try:
+        choice = int(input("Выбор: "))
+    except ValueError:
+        print("Введи нужную сумму")
+        continue
+
+    if choice == 0:
+        running = False
+
+    elif choice == 1:
+        print("Доступные валюты: UAH, USD, EUR")
+        from_cur = input("Какую валюту продаешь: ").upper()
+        to_cur = input("Какую валюту покупаешь: ").upper()
+
+        if from_cur not in ["UAH", "USD", "EUR"] or to_cur not in ["UAH", "USD", "EUR"]:
+            print("Только UAH, USD, EUR")
+            continue
+
+        if from_cur == to_cur:
+            print("Одинаковые валюты - операция невозможна")
+            continue
+
+        try:
+            amount = float(input(f"Сколько {from_cur} отдаёшь: "))
+        except ValueError:
+            print("Введи число")
+            continue
+
+        if user[from_cur] < amount:
+            print(f"У тебя только {user[from_cur]} {from_cur}")
+            continue
+
+        rate_from = 1.0
+        if from_cur != "UAH":
+            rate_from = 0
+            for item in data:
+                if item["ccy"] == from_cur:
+                    rate_from = float(item["sale"])
+                    break
+            if rate_from == 0:
+                print("Не удалось получить курс")
+                continue
+        
+        rate_to = 1.0
+        if to_cur != "UAH":
+            rate_to = 0
+            for item in data:
+                if item["ccy"] == to_cur:
+                    rate_to = float(item["sale"])
+                    break
+            if rate_to == 0:
+                print("Не удалось получить курс")
+                continue
+
+        # Считаем через UAH
+        if from_cur == "UAH":
+            uah_amount = amount
+        else:
+            uah_amount = amount * rate_from * nacentka_sell
+
+        if to_cur == "UAH":
+            result_amount = uah_amount
+        else:
+            result_amount = uah_amount / (rate_to * nacentka_buy)
+
+        if kassa[to_cur] < result_amount:
+            print(f"В кассе недостаточно {to_cur}, есть только {kassa[to_cur]:.2f}")
+            continue
+
+        print(f"\nОтдаёшь: {amount} {from_cur}")
+        print(f"Получаешь: {result_amount:.2f} {to_cur}")
+        confirm = input("Подтвердить? 1 - Да / 0 - Нет: ")
+
+        if confirm == "1":
+            user[from_cur] -= amount
+            user[to_cur] += result_amount
+            kassa[from_cur] += amount
+            kassa[to_cur] -= result_amount
+            print(f"Готово! Получил {result_amount:.2f} {to_cur}")
+
+    elif choice == 2:
+        profit = kassa["UAH"] - start_uah
+        print(f"\nКасса UAH: {kassa['UAH']:.2f}")
+        print(f"Касса USD: {kassa['USD']:.2f}")
+        print(f"Касса EUR: {kassa['EUR']:.2f}")
+        print(f"Прибыль: +{profit:.2f} UAH")
+
+    elif choice == 3:
+        print(f"\nТвой баланс:")
+        for cur, bal in user.items():
+            print(f"  {cur}: {bal:.2f}")
+
+    elif choice == 4:
+        print(f"\nНаценка на покупку: {int((nacentka_buy - 1) * 100)}%")
+        print(f"Наценка на продажу: {int((1 - nacentka_sell) * 100)}%")
+        for item in data:
+            if item["ccy"] in ["USD", "EUR"]:
+                real = float(item["sale"])
+                print(f"{item['ccy']}/UAH: реальный {real:.2f} | покупаем {real * nacentka_sell:.2f} | продаём {real * nacentka_buy:.2f}")
+
+    else:
+        print("Неверный выбор")
